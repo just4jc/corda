@@ -32,7 +32,7 @@ class BankOfCordaClientApi(val hostAndPort: HostAndPort) {
         client.start("user1","test")
         val proxy = client.proxy()
 
-        proxy.startProtocol(::IssuanceRequester, params.amount.DOLLARS, BOC_ISSUER_PARTY).returnValue.toBlocking().first()
+        proxy.startProtocol(::IssuanceRequester, params.amount.DOLLARS, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
     }
 
     private companion object {

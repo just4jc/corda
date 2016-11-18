@@ -31,12 +31,17 @@ object IssuerProtocol {
     /*
      * IssuanceRequester refers to a Node acting as issuance requester of some FungibleAsset
      */
-    class IssuanceRequester(val amount: Amount<Currency>, val bankOfCorda: Party): ProtocolLogic<IssuerProtocolResult>() {
+    class IssuanceRequester(val amount: Amount<Currency>, val otherParty: String): ProtocolLogic<IssuerProtocolResult>() {
 
         @Suspendable
         override fun call(): IssuerProtocolResult {
-            val issueRequest = IssuanceRequestState(amount, serviceHub.myInfo.legalIdentity, issuerPartyRef = BOC_ISSUER_PARTY_REF)
-            return sendAndReceive<IssuerProtocolResult>(bankOfCorda, issueRequest).unwrap { it }
+
+            val bankOfCordaParty = serviceHub.identityService.partyFromName(otherParty)
+            if (bankOfCordaParty != null) {
+                val issueRequest = IssuanceRequestState(amount, serviceHub.myInfo.legalIdentity, issuerPartyRef = BOC_ISSUER_PARTY_REF)
+                return sendAndReceive<IssuerProtocolResult>(bankOfCordaParty, issueRequest).unwrap { it }
+            }
+            return IssuerProtocolResult.Failed("Unable to locate ${otherParty} in Network Map Service")
         }
     }
 

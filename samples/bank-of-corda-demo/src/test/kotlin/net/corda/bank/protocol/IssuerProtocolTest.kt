@@ -56,7 +56,7 @@ class IssuerProtocolTest {
             otherParty -> IssuerProtocol.Issuer(issueTo)
         }.map { it.psm }
 
-        val issueRequest = IssuerProtocol.IssuanceRequester(amount, BOC_ISSUER_PARTY)
+        val issueRequest = IssuerProtocol.IssuanceRequester(amount, BOC_ISSUER_PARTY.name)
         val issueRequestResultFuture = bankClientNode.smm.add(issueRequest).resultFuture
 
         return RunResult(issuerFuture, issueRequestResultFuture)
