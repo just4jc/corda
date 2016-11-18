@@ -37,7 +37,7 @@ class BankOfCordaWebApi(val services: ServiceHub) {
         if (issuerToParty != null) {
             // invoke client side of Issuer Protocol: IssuanceRequester
             // The line below blocks and waits for the future to resolve.
-            services.invokeProtocolAsync(IssuanceRequester::class.java, params.amount.DOLLARS, issuerToParty)
+            services.invokeProtocolAsync(IssuanceRequester::class.java, params.amount.DOLLARS, BOC_ISSUER_PARTY.name)
             logger.info("Issue request completed successfully: ${params}")
             return Response.status(Response.Status.CREATED).build()
         } else {

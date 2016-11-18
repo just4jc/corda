@@ -12,7 +12,6 @@ import net.corda.node.services.config.configureTestSSL
 import net.corda.node.services.messaging.startProtocol
 import net.corda.node.services.startProtocolPermission
 import net.corda.node.services.transactions.SimpleNotaryService
-import net.corda.testing.MEGA_CORP
 import net.corda.testing.getHostAndPort
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -30,17 +29,8 @@ class BankOfCordaRPCClientTest {
             client.start("user1","test")
             val proxy = client.proxy()
 
-            val result = proxy.startProtocol(::IssuanceRequester, 1000.DOLLARS, BOC_ISSUER_PARTY).returnValue.toBlocking().first()
+            val result = proxy.startProtocol(::IssuanceRequester, 1000.DOLLARS, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
             assertTrue { result is IssuerProtocolResult.Success }
         }, isDebug = true)
     }
-
-//    @Test fun `test issuer protocol`() {
-//        val client = CordaRPCClient(HostAndPort.fromParts("localhost", 10002), configureTestSSL())
-//        client.start("user1","test")
-//        val proxy = client.proxy()
-//
-//        val result = proxy.startProtocol(::IssuanceRequester, 1000.DOLLARS, MEGA_CORP).returnValue.toBlocking().first()
-//        assertTrue { result is IssuerProtocolResult.Success }
-//    }
 }
