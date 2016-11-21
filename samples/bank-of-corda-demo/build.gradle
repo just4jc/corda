@@ -69,7 +69,6 @@ dependencies {
 
     // Javax is required for webapis
     compile "org.glassfish.jersey.core:jersey-server:${jersey_version}"
-
 }
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: [':install']) {
@@ -87,7 +86,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: [':install']) {
         cordapps = []
     }
     node {
-        name "Bank of Corda"
+        name "BankOfCorda"
         dirName "node-bank-of-corda"
         nearestCity "London"
         advertisedServices = []
@@ -96,7 +95,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: [':install']) {
         cordapps = []
     }
     node {
-        name "Big Corporation"
+        name "BigCorporation"
         dirName "node-big-corp"
         nearestCity "New York"
         advertisedServices = []

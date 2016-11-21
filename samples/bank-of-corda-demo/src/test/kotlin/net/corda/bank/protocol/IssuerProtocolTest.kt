@@ -39,8 +39,8 @@ class IssuerProtocolTest {
             bankClientNode.disableDBCloseOnStop()
             bankOfCordaNode.disableDBCloseOnStop()
 
-            val (issueRequest, issuerResult) = runIssuerAndIssueRequester(1000000.DOLLARS, MEGA_CORP)
-            assertEquals(issuerResult.get(), issueRequest.get().resultFuture.get())
+            val (issuer, issuerResult) = runIssuerAndIssueRequester(1000000.DOLLARS, MEGA_CORP)
+            assertEquals(issuerResult.get(), issuer.get().resultFuture.get())
 
             bankOfCordaNode.stop()
             bankClientNode.stop()
@@ -56,7 +56,7 @@ class IssuerProtocolTest {
             otherParty -> IssuerProtocol.Issuer(issueTo)
         }.map { it.psm }
 
-        val issueRequest = IssuerProtocol.IssuanceRequester(amount, BOC_ISSUER_PARTY.name)
+        val issueRequest = IssuerProtocol.IssuanceRequester(amount, issueTo.name, BOC_ISSUER_PARTY.name)
         val issueRequestResultFuture = bankClientNode.smm.add(issueRequest).resultFuture
 
         return RunResult(issuerFuture, issueRequestResultFuture)

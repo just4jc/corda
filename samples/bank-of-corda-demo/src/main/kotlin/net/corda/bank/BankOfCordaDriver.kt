@@ -23,7 +23,6 @@ fun main(args: Array<String>) {
 
 private class BankOfCordaDriver {
     enum class Role {
-        ISSUE_CASH_FLOW,
         ISSUE_CASH_RPC,
         ISSUE_CASH_WEB,
         ISSUER
@@ -47,30 +46,31 @@ private class BankOfCordaDriver {
 
         // What happens next depends on the role.
         // The ISSUER will launch a Bank of Corda node
-        // The ISSUE_CASH will request some Cash from the ISSUER
+        // The ISSUE_CASH will request some Cash from the ISSUER on behalf of Big Corporation node
         // will contact the buyer and actually make something happen.
         val role = options.valueOf(roleArg)!!
+        var result = true
         when (role) {
             Role.ISSUER ->  {
                 driver(dsl = {
                     val user = User("user1", "test", permissions = setOf(startProtocolPermission<IssuerProtocol.IssuanceRequester>()))
                     startNode("Notary", setOf(ServiceInfo(SimpleNotaryService.type)))
                     startNode("BankOfCorda", rpcUsers = listOf(user))
+                    startNode("BigCorporation")
                     waitForAllNodesToFinish()
                 }, isDebug = true)
             }
             Role.ISSUE_CASH_RPC -> {
                 logger.info("Requesting Cash via RPC ...")
-                BankOfCordaClientApi(HostAndPort.fromString("localhost:10004")).requestRPCIssue(IssueRequestParams(1000, "MegaCorp"))
+                result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10004")).requestRPCIssue(IssueRequestParams(1000, "BigCorporation"))
             }
             Role.ISSUE_CASH_WEB -> {
                 logger.info("Requesting Cash via Web ...")
-                BankOfCordaClientApi(HostAndPort.fromString("localhost:10005")).requestWebIssue(IssueRequestParams(1000, "MegaCorp"))
-            }
-            Role.ISSUE_CASH_FLOW -> {
-                logger.info("Requesting Cash via Protocol Flow ...")
+                result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10005")).requestWebIssue(IssueRequestParams(1000, "BigCorporation"))
             }
         }
+        if (result)
+            logger.info("Successfully processed Cash Issue request")
     }
 
     fun printHelp(parser: OptionParser) {

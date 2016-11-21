@@ -26,22 +26,26 @@ import java.util.*
  */
 object IssuerProtocol {
 
-    data class IssuanceRequestState(val amount: Amount<Currency>, val legalIdentity: Party, val issuerPartyRef: OpaqueBytes?)
+    data class IssuanceRequestState(val amount: Amount<Currency>, val issueToParty: Party, val issuerPartyRef: OpaqueBytes?)
 
     /*
      * IssuanceRequester refers to a Node acting as issuance requester of some FungibleAsset
      */
-    class IssuanceRequester(val amount: Amount<Currency>, val otherParty: String): ProtocolLogic<IssuerProtocolResult>() {
+    class IssuanceRequester(val amount: Amount<Currency>, val issueToPartyName: String,
+                            val otherParty: String): ProtocolLogic<IssuerProtocolResult>() {
 
         @Suspendable
         override fun call(): IssuerProtocolResult {
 
+            val issueToParty = serviceHub.identityService.partyFromName(issueToPartyName)
             val bankOfCordaParty = serviceHub.identityService.partyFromName(otherParty)
-            if (bankOfCordaParty != null) {
-                val issueRequest = IssuanceRequestState(amount, serviceHub.myInfo.legalIdentity, issuerPartyRef = BOC_ISSUER_PARTY_REF)
+            if (issueToParty == null || bankOfCordaParty == null) {
+                return IssuerProtocolResult.Failed("Unable to locate ${otherParty} in Network Map Service")
+            }
+            else {
+                val issueRequest = IssuanceRequestState(amount, issueToParty, issuerPartyRef = BOC_ISSUER_PARTY_REF)
                 return sendAndReceive<IssuerProtocolResult>(bankOfCordaParty, issueRequest).unwrap { it }
             }
-            return IssuerProtocolResult.Failed("Unable to locate ${otherParty} in Network Map Service")
         }
     }
 
@@ -71,10 +75,10 @@ object IssuerProtocol {
 
             // TODO: parse request to determine Asset to issue
             try {
-                val result = issueCashTo(issueRequest.amount, issueRequest.legalIdentity, issueRequest.issuerPartyRef)
-                var response: IssuerProtocolResult? = null
+                val result = issueCashTo(issueRequest.amount, issueRequest.issueToParty, issueRequest.issuerPartyRef)
+                var response: IssuerProtocolResult?
                 if (result is CashProtocolResult.Success)
-                    response = IssuerProtocolResult.Success(psm.id, "Amount ${issueRequest.amount} issued to ${issueRequest.legalIdentity}")
+                    response = IssuerProtocolResult.Success(psm.id, "Amount ${issueRequest.amount} issued to ${issueRequest.issueToParty}")
                 else
                     response = IssuerProtocolResult.Failed((result as CashProtocolResult.Failed).message)
 
@@ -96,21 +100,20 @@ object IssuerProtocol {
             // invoke Cash subprotocol to issue Asset
             progressTracker.currentStep = ISSUING
 
+            val bankOfCordaParty = serviceHub.identityService.partyFromName(BOC_ISSUER_PARTY.name)
             val issueCashProtocol = CashProtocol(CashCommand.IssueCash(
-                    amount, issuerPartyRef!!, BOC_ISSUER_PARTY, notaryNode.notaryIdentity))
-            val resultIssue = subProtocol(issueCashProtocol, shareParentSessions = true)
-            if (resultIssue is CashProtocolResult.Success) {
-                // TODO: timestamp and notarise (in the CashProtocol itself)
-                // Commit it to local storage.
-                serviceHub.recordTransactions(listOf(resultIssue.transaction).filterNotNull().asIterable())
+                    amount, issuerPartyRef!!, bankOfCordaParty!!, notaryNode.notaryIdentity))
+            val resultIssue = subProtocol(issueCashProtocol)
+            // NOTE: issueCashProtocol performs a Broadcast (which stores a local copy of the txn to the ledger)
+            if (resultIssue is CashProtocolResult.Failed) {
+                logger.error("Problem issuing cash: ${resultIssue.message}");
+                return resultIssue
             }
-            else return resultIssue
-
             // now invoke Cash subprotocol to Move issued assetType to issue requester
             progressTracker.currentStep = TRANSFERRING
             val moveCashProtocol = CashProtocol(CashCommand.PayCash(
-                    amount.issuedBy(BOC_ISSUER_PARTY.ref(issuerPartyRef)!!), issueTo))
-            val resultMove = subProtocol(moveCashProtocol, shareParentSessions = true)
+                    amount.issuedBy(bankOfCordaParty.ref(issuerPartyRef)), issueTo))
+            val resultMove = subProtocol(moveCashProtocol) // , shareParentSessions = true)
             if (resultMove is CashProtocolResult.Success) {
                 // Commit it to local storage.
                 serviceHub.recordTransactions(listOf(resultMove.transaction).filterNotNull().asIterable())
@@ -134,6 +137,12 @@ sealed class IssuerProtocolResult {
      */
     class Success(val id: StateMachineRunId, val message: String?) : IssuerProtocolResult() {
         override fun toString() = "Issuer Success($message)"
+
+        override fun equals(other: Any?): Boolean {
+            return other is IssuerProtocolResult.Success &&
+                    this.id == other.id &&
+                    this.message.equals(other.message)
+        }
     }
 
     /**

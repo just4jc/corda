@@ -22,14 +22,17 @@ class BankOfCordaRPCClientTest {
         driver(dsl = {
 
             val user = User("user1", "test", permissions = setOf(startProtocolPermission<IssuanceRequester>()))
-            val nodeBankOfCorda = startNode("Bank of Corda", setOf(ServiceInfo(SimpleNotaryService.type)), arrayListOf(user)).get()
+            val nodeBankOfCorda = startNode("BankOfCorda", setOf(ServiceInfo(SimpleNotaryService.type)), arrayListOf(user)).get()
             val nodeBankOfCordaApiAddr = nodeBankOfCorda.config.getHostAndPort("artemisAddress")
+            val bankOfCordaName = nodeBankOfCorda.nodeInfo.legalIdentity.name
+            val nodeBigCorporation = startNode("BigCorporation").get()
+            val bigCorporationName = nodeBigCorporation.nodeInfo.legalIdentity.name
 
             val client = CordaRPCClient(nodeBankOfCordaApiAddr, configureTestSSL())
             client.start("user1","test")
             val proxy = client.proxy()
 
-            val result = proxy.startProtocol(::IssuanceRequester, 1000.DOLLARS, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
+            val result = proxy.startProtocol(::IssuanceRequester, 1000.DOLLARS, bigCorporationName, bankOfCordaName).returnValue.toBlocking().first()
             assertTrue { result is IssuerProtocolResult.Success }
         }, isDebug = true)
     }
