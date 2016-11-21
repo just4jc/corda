@@ -13,12 +13,12 @@ class BankOfCordaHttpAPITest {
     @Test fun `test issuer protocol via Http`() {
         driver(dsl = {
 
-            val nodeBankOfCorda = startNode("Bank of Corda", setOf(ServiceInfo(SimpleNotaryService.type))).get()
+            val nodeBankOfCorda = startNode("BankOfCorda", setOf(ServiceInfo(SimpleNotaryService.type))).get()
             val nodeBankOfCordaApiAddr = nodeBankOfCorda.config.getHostAndPort("webAddress")
+            val nodeBigCorporation = startNode("BigCorporation").get()
+            val bigCorporationName = nodeBigCorporation.nodeInfo.legalIdentity.name
 
-//            val nodeBankClientAddr = startNode("MegaCorp").get().config.getHostAndPort("webAddress")
-
-            assert(BankOfCordaClientApi(nodeBankOfCordaApiAddr).requestWebIssue(IssueRequestParams(1000, "MegaCorp")))
+            assert(BankOfCordaClientApi(nodeBankOfCordaApiAddr).requestWebIssue(IssueRequestParams(1000, bigCorporationName)))
         }, isDebug = true)
     }
 }
