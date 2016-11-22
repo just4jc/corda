@@ -7,19 +7,19 @@ import net.corda.core.contracts.Amount
 import net.corda.core.contracts.DOLLARS
 import net.corda.core.crypto.Party
 import net.corda.core.map
-import net.corda.core.protocols.ProtocolStateMachine
+import net.corda.core.flows.FlowStateMachine
 import net.corda.core.utilities.DUMMY_NOTARY
 import net.corda.core.utilities.DUMMY_NOTARY_KEY
 import net.corda.testing.MEGA_CORP
 import net.corda.testing.MEGA_CORP_KEY
-import net.corda.testing.initiateSingleShotProtocol
+import net.corda.testing.initiateSingleShotFlow
 import net.corda.testing.ledger
 import net.corda.testing.node.MockNetwork
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals
 
-class IssuerProtocolTest {
+class IssuerFlowTest {
 
     lateinit var net: MockNetwork
     lateinit var notaryNode: MockNetwork.MockNode
@@ -52,18 +52,18 @@ class IssuerProtocolTest {
 
     private fun runIssuerAndIssueRequester(amount: Amount<Currency>, issueTo: Party) : RunResult {
 
-        val issuerFuture = bankOfCordaNode.initiateSingleShotProtocol(IssuerProtocol.IssuanceRequester::class) {
-            otherParty -> IssuerProtocol.Issuer(issueTo)
-        }.map { it.psm }
+        val issuerFuture = bankOfCordaNode.initiateSingleShotFlow(IssuerFlow.IssuanceRequester::class) {
+            otherParty -> IssuerFlow.Issuer(issueTo)
+        }.map { it.fsm }
 
-        val issueRequest = IssuerProtocol.IssuanceRequester(amount, issueTo.name, BOC_ISSUER_PARTY.name)
+        val issueRequest = IssuerFlow.IssuanceRequester(amount, issueTo.name, BOC_ISSUER_PARTY.name)
         val issueRequestResultFuture = bankClientNode.smm.add(issueRequest).resultFuture
 
         return RunResult(issuerFuture, issueRequestResultFuture)
     }
 
     private data class RunResult(
-            val issuer: ListenableFuture<ProtocolStateMachine<*>>,
-            val issueRequestResult: ListenableFuture<IssuerProtocolResult>
+            val issuer: ListenableFuture<FlowStateMachine<*>>,
+            val issueRequestResult: ListenableFuture<IssuerFlowResult>
     )
 }
