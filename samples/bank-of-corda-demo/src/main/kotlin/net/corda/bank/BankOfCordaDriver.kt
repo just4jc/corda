@@ -4,12 +4,13 @@ import com.google.common.net.HostAndPort
 import joptsimple.OptionParser
 import net.corda.bank.api.BankOfCordaClientApi
 import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
-import net.corda.bank.protocol.IssuerProtocol
+import net.corda.bank.protocol.IssuerFlow
 import net.corda.core.node.services.ServiceInfo
 import net.corda.core.utilities.loggerFor
 import net.corda.node.driver.driver
 import net.corda.node.services.User
-import net.corda.node.services.startProtocolPermission
+import net.corda.node.services.startFlowPermission
+import net.corda.node.services.startFlowPermission
 import net.corda.node.services.transactions.SimpleNotaryService
 import org.slf4j.Logger
 import kotlin.system.exitProcess
@@ -53,7 +54,7 @@ private class BankOfCordaDriver {
         when (role) {
             Role.ISSUER ->  {
                 driver(dsl = {
-                    val user = User("user1", "test", permissions = setOf(startProtocolPermission<IssuerProtocol.IssuanceRequester>()))
+                    val user = User("user1", "test", permissions = setOf(startFlowPermission<IssuerFlow.IssuanceRequester>()))
                     startNode("Notary", setOf(ServiceInfo(SimpleNotaryService.type)))
                     startNode("BankOfCorda", rpcUsers = listOf(user))
                     startNode("BigCorporation")

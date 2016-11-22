@@ -1,7 +1,7 @@
 package net.corda.bank.api
 
-import net.corda.bank.protocol.IssuerProtocol.IssuanceRequester
-import net.corda.bank.protocol.IssuerProtocolResult
+import net.corda.bank.protocol.IssuerFlow.IssuanceRequester
+import net.corda.bank.protocol.IssuerFlowResult
 import net.corda.core.contracts.DOLLARS
 import net.corda.core.node.ServiceHub
 import net.corda.core.utilities.loggerFor
@@ -34,10 +34,10 @@ class BankOfCordaWebApi(val services: ServiceHub) {
     @Consumes(MediaType.APPLICATION_JSON)
     fun issueAssetRequest(params: IssueRequestParams): Response {
 
-        // invoke client side of Issuer Protocol: IssuanceRequester
+        // invoke client side of Issuer Flow: IssuanceRequester
         // The line below blocks and waits for the future to resolve.
-        val result = services.invokeProtocolAsync(IssuanceRequester::class.java, params.amount.DOLLARS, params.issueToPartyName, BOC_ISSUER_PARTY.name)
-        if (result.resultFuture.get() is IssuerProtocolResult.Success) {
+        val result = services.invokeFlowAsync(IssuanceRequester::class.java, params.amount.DOLLARS, params.issueToPartyName, BOC_ISSUER_PARTY.name)
+        if (result.resultFuture.get() is IssuerFlowResult.Success) {
             logger.info("Issue request completed successfully: ${params}")
             return Response.status(Response.Status.CREATED).build()
         } else {

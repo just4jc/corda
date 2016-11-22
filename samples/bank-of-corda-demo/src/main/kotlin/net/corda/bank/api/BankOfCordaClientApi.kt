@@ -2,13 +2,13 @@ package net.corda.bank.api
 
 import com.google.common.net.HostAndPort
 import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
-import net.corda.bank.protocol.IssuerProtocol.IssuanceRequester
-import net.corda.bank.protocol.IssuerProtocolResult
+import net.corda.bank.protocol.IssuerFlow.IssuanceRequester
+import net.corda.bank.protocol.IssuerFlowResult
 import net.corda.client.CordaRPCClient
 import net.corda.client.fxutils.lift
 import net.corda.core.contracts.DOLLARS
 import net.corda.node.services.config.configureTestSSL
-import net.corda.node.services.messaging.startProtocol
+import net.corda.node.services.messaging.startFlow
 import net.corda.testing.http.HttpApi
 import javax.ws.rs.core.Response
 
@@ -35,8 +35,8 @@ class BankOfCordaClientApi(val hostAndPort: HostAndPort) {
         client.start("user1","test")
         val proxy = client.proxy()
 
-        val result = proxy.startProtocol(::IssuanceRequester, params.amount.DOLLARS, params.issueToPartyName, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
-        return (result is IssuerProtocolResult.Success)
+        val result = proxy.startFlow(::IssuanceRequester, params.amount.DOLLARS, params.issueToPartyName, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
+        return (result is IssuerFlowResult.Success)
     }
 
     private companion object {
