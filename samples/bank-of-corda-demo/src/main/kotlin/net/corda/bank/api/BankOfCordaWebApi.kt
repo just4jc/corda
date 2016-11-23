@@ -1,7 +1,7 @@
 package net.corda.bank.api
 
-import net.corda.bank.protocol.IssuerFlow.IssuanceRequester
-import net.corda.bank.protocol.IssuerFlowResult
+import net.corda.bank.flow.IssuerFlow.IssuanceRequester
+import net.corda.bank.flow.IssuerFlowResult
 import net.corda.core.contracts.DOLLARS
 import net.corda.core.node.ServiceHub
 import net.corda.core.utilities.loggerFor

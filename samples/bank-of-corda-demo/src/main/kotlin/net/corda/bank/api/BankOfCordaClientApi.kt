@@ -2,8 +2,8 @@ package net.corda.bank.api
 
 import com.google.common.net.HostAndPort
 import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
-import net.corda.bank.protocol.IssuerFlow.IssuanceRequester
-import net.corda.bank.protocol.IssuerFlowResult
+import net.corda.bank.flow.IssuerFlow.IssuanceRequester
+import net.corda.bank.flow.IssuerFlowResult
 import net.corda.client.CordaRPCClient
 import net.corda.core.contracts.DOLLARS
 import net.corda.node.services.config.configureTestSSL

@@ -1,8 +1,9 @@
-package net.corda.bank.protocol
+package net.corda.bank.flow
 
 import com.google.common.util.concurrent.ListenableFuture
 import net.corda.bank.api.BOC_ISSUER_PARTY
 import net.corda.bank.api.BOC_KEY
+import net.corda.bank.flow.IssuerFlow.IssuanceRequester
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.DOLLARS
 import net.corda.core.crypto.Party
@@ -27,7 +28,7 @@ class IssuerFlowTest {
     lateinit var bankClientNode: MockNetwork.MockNode
 
     @Test
-    fun `test issuer protocol`() {
+    fun `test issuer flow`() {
         net = MockNetwork(false, true)
         ledger {
             notaryNode = net.createNotaryNode(DUMMY_NOTARY.name, DUMMY_NOTARY_KEY)
@@ -53,7 +54,7 @@ class IssuerFlowTest {
             otherParty -> IssuerFlow.Issuer(issueTo)
         }.map { it.fsm }
 
-        val issueRequest = IssuerFlow.IssuanceRequester(amount, issueTo.name, BOC_ISSUER_PARTY.name)
+        val issueRequest = IssuanceRequester(amount, issueTo.name, BOC_ISSUER_PARTY.name)
         val issueRequestResultFuture = bankClientNode.smm.add(issueRequest).resultFuture
 
         return RunResult(issuerFuture, issueRequestResultFuture)

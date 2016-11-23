@@ -1,7 +1,7 @@
 package net.corda.bank
 
-import net.corda.bank.protocol.IssuerFlow.IssuanceRequester
-import net.corda.bank.protocol.IssuerFlowResult
+import net.corda.bank.flow.IssuerFlow.IssuanceRequester
+import net.corda.bank.flow.IssuerFlowResult
 import net.corda.client.CordaRPCClient
 import net.corda.core.contracts.DOLLARS
 import net.corda.core.node.services.ServiceInfo
@@ -16,7 +16,7 @@ import org.junit.Test
 import kotlin.test.assertTrue
 
 class BankOfCordaRPCClientTest {
-    @Test fun `test issuer protocol via RPC`() {
+    @Test fun `test issuer flow via RPC`() {
         driver(dsl = {
             val user = User("user1", "test", permissions = setOf(startFlowPermission<IssuanceRequester>()))
             val nodeBankOfCorda = startNode("BankOfCorda", setOf(ServiceInfo(SimpleNotaryService.type)), arrayListOf(user)).get()

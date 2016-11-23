@@ -2,10 +2,9 @@ package net.corda.bank.plugin
 
 import com.esotericsoftware.kryo.Kryo
 import net.corda.bank.api.BankOfCordaWebApi
-import net.corda.bank.protocol.IssuerFlow
-import net.corda.bank.protocol.IssuerFlowResult
+import net.corda.bank.flow.IssuerFlow
+import net.corda.bank.flow.IssuerFlowResult
 import net.corda.core.contracts.Amount
-import net.corda.core.crypto.Party
 import net.corda.core.node.CordaPluginRegistry
 
 class BankOfCordaPlugin : CordaPluginRegistry() {
