@@ -9,15 +9,12 @@ import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
 import org.junit.Test
 
 class BankOfCordaHttpAPITest {
-
     @Test fun `test issuer protocol via Http`() {
         driver(dsl = {
-
             val nodeBankOfCorda = startNode("BankOfCorda", setOf(ServiceInfo(SimpleNotaryService.type))).get()
             val nodeBankOfCordaApiAddr = nodeBankOfCorda.config.getHostAndPort("webAddress")
             val nodeBigCorporation = startNode("BigCorporation").get()
             val bigCorporationName = nodeBigCorporation.nodeInfo.legalIdentity.name
-
             assert(BankOfCordaClientApi(nodeBankOfCordaApiAddr).requestWebIssue(IssueRequestParams(1000, bigCorporationName)))
         }, isDebug = true)
     }

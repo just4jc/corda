@@ -3,6 +3,7 @@ package net.corda.bank.protocol
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.bank.api.BOC_ISSUER_PARTY
 import net.corda.bank.api.BOC_ISSUER_PARTY_REF
+import net.corda.client.mock.generateIssueRef
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.FungibleAsset
 import net.corda.core.contracts.Issued
@@ -60,7 +61,7 @@ object IssuerFlow {
 
             object ISSUING : ProgressTracker.Step("Self issuing asset")
 
-            object TRANSFERRING : ProgressTracker.Step("Transfering asset to issuance requester")
+            object TRANSFERRING : ProgressTracker.Step("Transferring asset to issuance requester")
 
             object SENDING_CONIFIRM : ProgressTracker.Step("Confirming asset issuance to requester")
 
@@ -75,12 +76,11 @@ object IssuerFlow {
 
             // TODO: parse request to determine Asset to issue
             try {
-                val result = issueCashTo(issueRequest.amount, issueRequest.issueToParty, issueRequest.issuerPartyRef)
-                var response: IssuerFlowResult?
-                if (result is CashFlowResult.Success)
-                    response = IssuerFlowResult.Success(fsm.id, "Amount ${issueRequest.amount} issued to ${issueRequest.issueToParty}")
+                val result = issueCashTo(issueRequest.amount, issueRequest.issueToParty, issueRequest.issuerPartyRef!!)
+                val response = if (result is CashFlowResult.Success)
+                    IssuerFlowResult.Success(fsm.id, "Amount ${issueRequest.amount} issued to ${issueRequest.issueToParty}")
                 else
-                    response = IssuerFlowResult.Failed((result as CashFlowResult.Failed).message)
+                    IssuerFlowResult.Failed((result as CashFlowResult.Failed).message)
 
                 progressTracker.currentStep = SENDING_CONIFIRM
                 send(otherParty, response)
@@ -93,18 +93,19 @@ object IssuerFlow {
 
         @Suspendable
         private fun issueCashTo(amount: Amount<Currency>,
-                                issueTo: Party, issuerPartyRef: OpaqueBytes? = BOC_ISSUER_PARTY_REF): CashFlowResult {
+                                issueTo: Party, issuerPartyRef: OpaqueBytes = BOC_ISSUER_PARTY_REF): CashFlowResult {
 
             val notaryNode: NodeInfo = serviceHub.networkMapCache.notaryNodes[0]
 
             // invoke Cash subprotocol to issue Asset
             progressTracker.currentStep = ISSUING
 
-            val bankOfCordaParty = serviceHub.identityService.partyFromName(BOC_ISSUER_PARTY.name)
+            val bankOfCordaParty = serviceHub.myInfo.legalIdentity
             val issueCashFlow = CashFlow(CashCommand.IssueCash(
-                    amount, issuerPartyRef!!, bankOfCordaParty!!, notaryNode.notaryIdentity))
+                    amount, issuerPartyRef, bankOfCordaParty, notaryNode.notaryIdentity))
             val resultIssue = subFlow(issueCashFlow)
             // NOTE: issueCashFlow performs a Broadcast (which stores a local copy of the txn to the ledger)
+            // TODO: use Exception propagation to handle failed sub protocol execution
             if (resultIssue is CashFlowResult.Failed) {
                 logger.error("Problem issuing cash: ${resultIssue.message}");
                 return resultIssue
@@ -113,7 +114,7 @@ object IssuerFlow {
             progressTracker.currentStep = TRANSFERRING
             val moveCashFlow = CashFlow(CashCommand.PayCash(
                     amount.issuedBy(bankOfCordaParty.ref(issuerPartyRef)), issueTo))
-            val resultMove = subFlow(moveCashFlow) // , shareParentSessions = true)
+            val resultMove = subFlow(moveCashFlow)
             if (resultMove is CashFlowResult.Success) {
                 // Commit it to local storage.
                 serviceHub.recordTransactions(listOf(resultMove.transaction).filterNotNull().asIterable())

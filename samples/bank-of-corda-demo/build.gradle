@@ -1,18 +1,3 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        jcenter()
-    }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "net.corda.plugins:quasar-utils:$corda_version"
-        classpath "net.corda.plugins:publish-utils:$corda_version"
-        classpath "net.corda.plugins:cordformation:$corda_version"
-    }
-}
-
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'idea'
@@ -71,7 +56,7 @@ dependencies {
     compile "org.glassfish.jersey.core:jersey-server:${jersey_version}"
 }
 
-task deployNodes(type: net.corda.plugins.Cordform, dependsOn: [':install']) {
+task deployNodes(type: net.corda.plugins.Cordform, dependsOn: [':install', 'build']) {
     directory "./build/nodes"
     // This name "Notary" is hard-coded into BankOfCordaClientApi so if you change it here, change it there too.
     // In this demo the node that runs a standalone notary also acts as the network map server.
@@ -93,6 +78,9 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: [':install']) {
         artemisPort 10004
         webPort 10005
         cordapps = []
+//        rpcUsers : [
+//                { user=user1, password=test, permissions=[ cash ] }
+//        ]
     }
     node {
         name "BigCorporation"
@@ -138,9 +126,16 @@ task runIssuer(type: JavaExec) {
     args 'ISSUER'
 }
 
-task runRequestIssueCash(type: JavaExec) {
+task runRPCCashIssue(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'net.corda.bank.BankOfCordaDriverKt'
     args '--role'
     args 'ISSUE_CASH_RPC'
+}
+
+task runWebCashIssue(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'net.corda.bank.BankOfCordaDriverKt'
+    args '--role'
+    args 'ISSUE_CASH_WEB'
 }

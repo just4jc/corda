@@ -10,7 +10,6 @@ import net.corda.core.utilities.loggerFor
 import net.corda.node.driver.driver
 import net.corda.node.services.User
 import net.corda.node.services.startFlowPermission
-import net.corda.node.services.startFlowPermission
 import net.corda.node.services.transactions.SimpleNotaryService
 import org.slf4j.Logger
 import kotlin.system.exitProcess
@@ -48,7 +47,6 @@ private class BankOfCordaDriver {
         // What happens next depends on the role.
         // The ISSUER will launch a Bank of Corda node
         // The ISSUE_CASH will request some Cash from the ISSUER on behalf of Big Corporation node
-        // will contact the buyer and actually make something happen.
         val role = options.valueOf(roleArg)!!
         var result = true
         when (role) {
