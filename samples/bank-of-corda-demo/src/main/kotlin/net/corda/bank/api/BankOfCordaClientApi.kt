@@ -14,7 +14,6 @@ import net.corda.testing.http.HttpApi
  * Interface for communicating with Bank of Corda node
  */
 class BankOfCordaClientApi(val hostAndPort: HostAndPort) {
-
     /**
      * HTTP API
      */

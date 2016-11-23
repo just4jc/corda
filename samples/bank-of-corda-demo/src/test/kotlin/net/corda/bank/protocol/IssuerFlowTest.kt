@@ -6,8 +6,8 @@ import net.corda.bank.api.BOC_KEY
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.DOLLARS
 import net.corda.core.crypto.Party
-import net.corda.core.map
 import net.corda.core.flows.FlowStateMachine
+import net.corda.core.map
 import net.corda.core.utilities.DUMMY_NOTARY
 import net.corda.core.utilities.DUMMY_NOTARY_KEY
 import net.corda.testing.MEGA_CORP
@@ -28,9 +28,7 @@ class IssuerFlowTest {
 
     @Test
     fun `test issuer protocol`() {
-
         net = MockNetwork(false, true)
-
         ledger {
             notaryNode = net.createNotaryNode(DUMMY_NOTARY.name, DUMMY_NOTARY_KEY)
             bankOfCordaNode = net.createPartyNode(notaryNode.info.address, BOC_ISSUER_PARTY.name, BOC_KEY)
@@ -51,7 +49,6 @@ class IssuerFlowTest {
     }
 
     private fun runIssuerAndIssueRequester(amount: Amount<Currency>, issueTo: Party) : RunResult {
-
         val issuerFuture = bankOfCordaNode.initiateSingleShotFlow(IssuerFlow.IssuanceRequester::class) {
             otherParty -> IssuerFlow.Issuer(issueTo)
         }.map { it.fsm }

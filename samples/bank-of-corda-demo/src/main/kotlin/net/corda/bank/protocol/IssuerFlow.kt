@@ -1,9 +1,7 @@
 package net.corda.bank.protocol
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.bank.api.BOC_ISSUER_PARTY
 import net.corda.bank.api.BOC_ISSUER_PARTY_REF
-import net.corda.client.mock.generateIssueRef
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.FungibleAsset
 import net.corda.core.contracts.Issued
@@ -26,7 +24,6 @@ import java.util.*
  *
  */
 object IssuerFlow {
-
     data class IssuanceRequestState(val amount: Amount<Currency>, val issueToParty: Party, val issuerPartyRef: OpaqueBytes?)
 
     /*
@@ -34,10 +31,8 @@ object IssuerFlow {
      */
     class IssuanceRequester(val amount: Amount<Currency>, val issueToPartyName: String,
                             val otherParty: String): FlowLogic<IssuerFlowResult>() {
-
         @Suspendable
         override fun call(): IssuerFlowResult {
-
             val issueToParty = serviceHub.identityService.partyFromName(issueToPartyName)
             val bankOfCordaParty = serviceHub.identityService.partyFromName(otherParty)
             if (issueToParty == null || bankOfCordaParty == null) {
@@ -55,25 +50,18 @@ object IssuerFlow {
      */
     class Issuer(val otherParty: Party,
                  override val progressTracker: ProgressTracker = Issuer.tracker()): FlowLogic<IssuerFlowResult>() {
-
         companion object {
             object AWAITING_REQUEST : ProgressTracker.Step("Awaiting issuance request")
-
             object ISSUING : ProgressTracker.Step("Self issuing asset")
-
             object TRANSFERRING : ProgressTracker.Step("Transferring asset to issuance requester")
-
             object SENDING_CONIFIRM : ProgressTracker.Step("Confirming asset issuance to requester")
-
             fun tracker() = ProgressTracker(AWAITING_REQUEST, ISSUING, TRANSFERRING, SENDING_CONIFIRM)
         }
 
         @Suspendable
         override fun call(): IssuerFlowResult {
-
             progressTracker.currentStep = AWAITING_REQUEST
             val issueRequest = receive<IssuanceRequestState>(otherParty).unwrap { it }
-
             // TODO: parse request to determine Asset to issue
             try {
                 val result = issueCashTo(issueRequest.amount, issueRequest.issueToParty, issueRequest.issuerPartyRef!!)
@@ -81,7 +69,6 @@ object IssuerFlow {
                     IssuerFlowResult.Success(fsm.id, "Amount ${issueRequest.amount} issued to ${issueRequest.issueToParty}")
                 else
                     IssuerFlowResult.Failed((result as CashFlowResult.Failed).message)
-
                 progressTracker.currentStep = SENDING_CONIFIRM
                 send(otherParty, response)
                 return response
@@ -94,12 +81,9 @@ object IssuerFlow {
         @Suspendable
         private fun issueCashTo(amount: Amount<Currency>,
                                 issueTo: Party, issuerPartyRef: OpaqueBytes = BOC_ISSUER_PARTY_REF): CashFlowResult {
-
             val notaryNode: NodeInfo = serviceHub.networkMapCache.notaryNodes[0]
-
             // invoke Cash subprotocol to issue Asset
             progressTracker.currentStep = ISSUING
-
             val bankOfCordaParty = serviceHub.myInfo.legalIdentity
             val issueCashFlow = CashFlow(CashCommand.IssueCash(
                     amount, issuerPartyRef, bankOfCordaParty, notaryNode.notaryIdentity))
@@ -107,7 +91,7 @@ object IssuerFlow {
             // NOTE: issueCashFlow performs a Broadcast (which stores a local copy of the txn to the ledger)
             // TODO: use Exception propagation to handle failed sub protocol execution
             if (resultIssue is CashFlowResult.Failed) {
-                logger.error("Problem issuing cash: ${resultIssue.message}");
+                logger.error("Problem issuing cash: ${resultIssue.message}")
                 return resultIssue
             }
             // now invoke Cash subprotocol to Move issued assetType to issue requester
@@ -134,7 +118,7 @@ object IssuerFlow {
 
 sealed class IssuerFlowResult {
     /**
-     * @param transaction the transaction created as a result, in the case where the protocol completed successfully.
+     * @param id created as a result, in the case where the protocol completed successfully.
      */
     class Success(val id: StateMachineRunId, val message: String?) : IssuerFlowResult() {
         override fun toString() = "Issuer Success($message)"
@@ -143,6 +127,12 @@ sealed class IssuerFlowResult {
             return other is IssuerFlowResult.Success &&
                     this.id == other.id &&
                     this.message.equals(other.message)
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + (message?.hashCode() ?: 0)
+            return result
         }
     }
 
@@ -154,4 +144,3 @@ sealed class IssuerFlowResult {
         override fun toString() = "Issuer failed($message)"
     }
 }
-
