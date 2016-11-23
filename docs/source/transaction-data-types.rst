@@ -64,7 +64,7 @@ of state:
 
   ``DealState``
     A LinearState representing an agreement between two or more parties. Intended to simplify implementing generic
-    protocols that manipulate many agreement types.
+    flows that manipulate many agreement types.
 
   ``FixableDealState``
     A deal state, with further functions exposed to support fixing of interest rates.
@@ -161,13 +161,13 @@ node specifies a *threshold* of how many child signatures it requires.
 An illustration of an *"either Alice and Bob, or Charlie"* composite key:
 
 .. image:: resources/composite-key.png
-:width: 300px
+  :width: 300px
 
 To allow further flexibility, each child node can have an associated custom *weight* (the default is 1). The *threshold*
 then specifies the minimum total weight of all children required. Our previous example can also be expressed as:
 
 .. image:: resources/composite-key-2.png
-:width: 300px
+  :width: 300px
 
 Verification
 ^^^^^^^^^^^^
