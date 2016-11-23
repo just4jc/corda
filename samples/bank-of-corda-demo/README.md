@@ -23,17 +23,13 @@ installed and available on your path.
 Each of the following commands will launch a separate Node called Big Corporation which will become the owner
 of some Cash following an issue request:
 
-2. Run the Bank of Corda Client driver (to simulate a flow issue requester) by running:
-[BankOfCordaDriver] --role ISSUE_CASH_REQUEST_FLOW
-This demonstrates the Big Corporation node directly requesting issuance of some cash via the issuer flow.
-
-3. Run the Bank of Corda Client driver (to simulate a web issue requester) by running:
-[BankOfCordaDriver] --role ISSUE_CASH_REQUEST_WEB
+2. Run the Bank of Corda Client driver (to simulate a web issue requester) by running:
+[BankOfCordaDriver] --role ISSUE_CASH_WEB
 This demonstrates a remote application acting on behalf of the Big Corporation and communicating directly with the
 Bank of Corda node via HTTP to request issuance of some cash.
 
-4. Run the Bank of Corda Client driver (to simulate an RPC issue requester) by running:
-[BankOfCordaDriver] --role ISSUE_CASH_REQUEST_RPC
+3. Run the Bank of Corda Client driver (to simulate an RPC issue requester) by running:
+[BankOfCordaDriver] --role ISSUE_CASH_RPC
 Similar to 3 above, but using RPC as the remote communications mechanism.
 
 ## Developer notes
