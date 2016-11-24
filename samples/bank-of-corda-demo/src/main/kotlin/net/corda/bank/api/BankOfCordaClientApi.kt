@@ -26,14 +26,13 @@ class BankOfCordaClientApi(val hostAndPort: HostAndPort) {
     /**
      * RPC API
      */
-    fun requestRPCIssue(params: IssueRequestParams): Boolean {
+    fun requestRPCIssue(params: IssueRequestParams): IssuerFlowResult {
         val client = CordaRPCClient(hostAndPort, configureTestSSL())
         // TODO: privileged security controls required
         client.start("user1","test")
         val proxy = client.proxy()
 
-        val result = proxy.startFlow(::IssuanceRequester, params.amount.DOLLARS, params.issueToPartyName, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
-        return (result is IssuerFlowResult.Success)
+        return proxy.startFlow(::IssuanceRequester, params.amount.DOLLARS, params.issueToPartyName, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
     }
 
     private companion object {

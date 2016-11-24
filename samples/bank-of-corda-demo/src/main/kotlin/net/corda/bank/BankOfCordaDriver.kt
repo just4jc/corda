@@ -5,6 +5,7 @@ import joptsimple.OptionParser
 import net.corda.bank.api.BankOfCordaClientApi
 import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
 import net.corda.bank.flow.IssuerFlow
+import net.corda.bank.flow.IssuerFlowResult
 import net.corda.core.node.services.ServiceInfo
 import net.corda.core.utilities.loggerFor
 import net.corda.node.driver.driver
@@ -48,7 +49,6 @@ private class BankOfCordaDriver {
         // The ISSUER will launch a Bank of Corda node
         // The ISSUE_CASH will request some Cash from the ISSUER on behalf of Big Corporation node
         val role = options.valueOf(roleArg)!!
-        var result = true
         when (role) {
             Role.ISSUER ->  {
                 driver(dsl = {
@@ -61,15 +61,16 @@ private class BankOfCordaDriver {
             }
             Role.ISSUE_CASH_RPC -> {
                 logger.info("Requesting Cash via RPC ...")
-                result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10004")).requestRPCIssue(IssueRequestParams(1000, "BigCorporation"))
+                val result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10004")).requestRPCIssue(IssueRequestParams(1000, "BigCorporation"))
+                if (result is IssuerFlowResult.Success)
+                    logger.info("Success!! You transaction receipt is ${result.txnId}")
             }
             Role.ISSUE_CASH_WEB -> {
                 logger.info("Requesting Cash via Web ...")
-                result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10005")).requestWebIssue(IssueRequestParams(1000, "BigCorporation"))
-            }
+                val result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10005")).requestWebIssue(IssueRequestParams(1000, "BigCorporation"))
+                if (result)
+                    logger.info("Successfully processed Cash Issue request")            }
         }
-        if (result)
-            logger.info("Successfully processed Cash Issue request")
     }
 
     fun printHelp(parser: OptionParser) {

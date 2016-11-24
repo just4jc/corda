@@ -7,8 +7,8 @@ import net.corda.core.contracts.FungibleAsset
 import net.corda.core.contracts.Issued
 import net.corda.core.contracts.issuedBy
 import net.corda.core.crypto.Party
+import net.corda.core.crypto.SecureHash
 import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.StateMachineRunId
 import net.corda.core.node.NodeInfo
 import net.corda.core.node.PluginServiceHub
 import net.corda.core.serialization.OpaqueBytes
@@ -66,7 +66,7 @@ object IssuerFlow {
             try {
                 val result = issueCashTo(issueRequest.amount, issueRequest.issueToParty, issueRequest.issuerPartyRef!!)
                 val response = if (result is CashFlowResult.Success)
-                    IssuerFlowResult.Success(fsm.id, "Amount ${issueRequest.amount} issued to ${issueRequest.issueToParty}")
+                    IssuerFlowResult.Success(result.transaction!!.tx.id, "Amount ${issueRequest.amount} issued to ${issueRequest.issueToParty}")
                 else
                     IssuerFlowResult.Failed((result as CashFlowResult.Failed).message)
                 progressTracker.currentStep = SENDING_CONIFIRM
@@ -99,9 +99,11 @@ object IssuerFlow {
             val moveCashFlow = CashFlow(CashCommand.PayCash(
                     amount.issuedBy(bankOfCordaParty.ref(issuerPartyRef)), issueTo))
             val resultMove = subFlow(moveCashFlow)
-            if (resultMove is CashFlowResult.Success) {
-                // Commit it to local storage.
-                serviceHub.recordTransactions(listOf(resultMove.transaction).filterNotNull().asIterable())
+            // NOTE: CashFlow PayCash calls FinalityFlow which performs a Broadcast (which stores a local copy of the txn to the ledger)
+            // TODO: use Exception propagation to handle failed sub flow execution
+            if (resultMove is CashFlowResult.Failed) {
+                logger.error("Problem transferring cash: ${resultMove.message}")
+                return resultMove
             }
             return resultMove
         }
@@ -118,28 +120,24 @@ object IssuerFlow {
 
 sealed class IssuerFlowResult {
     /**
-     * @param id created as a result, in the case where the flow completed successfully.
+     * @param txnId returned as a result, in the case where the flow completed successfully.
      */
-    class Success(val id: StateMachineRunId, val message: String?) : IssuerFlowResult() {
+    class Success(val txnId: SecureHash, val message: String?) : IssuerFlowResult() {
         override fun toString() = "Issuer Success($message)"
 
         override fun equals(other: Any?): Boolean {
             return other is Success &&
-                    this.id == other.id &&
+                    this.txnId == other.txnId &&
                     this.message.equals(other.message)
         }
 
         override fun hashCode(): Int {
-            var result = id.hashCode()
+            var result = txnId.hashCode()
             result = 31 * result + (message?.hashCode() ?: 0)
             return result
         }
     }
 
-    /**
-     * State indicating the action undertaken failed, either directly (it is not something which requires a
-     * state machine), or before a state machine was started.
-     */
     class Failed(val message: String?) : IssuerFlowResult() {
         override fun toString() = "Issuer failed($message)"
     }
