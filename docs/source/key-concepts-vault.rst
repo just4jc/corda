@@ -1,7 +1,7 @@
 Vault
 =====
 
-The vault contains data extracted from the ledger that is considered relevant to the node’s owner, stored in a secured form
+The vault contains data extracted from the ledger that is considered relevant to the node’s owner, stored in a relational model
 that can be easily queried and worked with. The vault supports the management of data in both authoritative ("on-ledger") form
 and, where appropriate, shadow ("off-ledger") form:
 

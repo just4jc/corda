@@ -79,8 +79,8 @@ contract type in the library):
 In a unit test, you would typically use a freshly created ``MockServices`` object, or more realistically, you would
 write your tests using the :doc:`domain specific language for writing tests <tutorial-test-dsl>`.
 
-Party and PublicKey
--------------------
+Party and CompositeKey
+----------------------
 
 Entities using the network are called *parties*. Parties can sign structures using keys, and a party may have many
 keys under their control.
@@ -90,7 +90,7 @@ chain of custody it is important you can convince yourself of the transaction's 
 you don't learn anything about who was involved in that transaction. In these cases a public key may be present
 without any identifying information about who owns it.
 
-Identities of parties involved in signing a transaction can be represented simply by a ``PublicKey``, or by further
+Identities of parties involved in signing a transaction can be represented simply by a ``CompositeKey``, or by further
 information (such as name) using the ``Party`` class. An ``AuthenticatedObject`` represents an object (like a command)
 that has been signed by a set of parties.
 
@@ -112,12 +112,14 @@ node specifies a *threshold* of how many child signatures it requires.
 An illustration of an *"either Alice and Bob, or Charlie"* composite key:
 
 .. image:: resources/composite-key.png
+      :align: center
       :width: 300px
 
 To allow further flexibility, each child node can have an associated custom *weight* (the default is 1). The *threshold*
 then specifies the minimum total weight of all children required. Our previous example can also be expressed as:
 
 .. image:: resources/composite-key-2.png
+      :align: center
       :width: 300px
 
 Verification

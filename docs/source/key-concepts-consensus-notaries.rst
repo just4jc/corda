@@ -24,7 +24,7 @@ Notaries are expected to be composed of multiple mutually distrusting parties wh
 Notaries are identified by and sign with composite public keys. Notaries accept transactions submitted to them for processing
 and either return a signature over the transaction, or a rejection error that states that a double spend has occurred.
 The presence of a notary signature from the state’s chosen notary indicates transaction finality. An app developer triggers
-notarisation by invoking the **Finality flow** on the transaction once all other necessary signatures have been gathered.
+notarisation by invoking the ``FinalityFlow`` on the transaction once all other necessary signatures have been gathered.
 Once the finality flow returns successfully, the transaction can be considered committed to the database.
 
 Consensus is described in detail here :doc:`consensus`

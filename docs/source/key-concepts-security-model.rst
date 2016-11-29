@@ -34,12 +34,6 @@ Security is prevalent at the following levels:
 .. warning:: API level authorisation (RPC, Web) is currently based on permission groups applied to flow execution.
     This is subject to design review with views to selecting a proven, mature entitlements solution.
 
-* Encryption
-
-* Integrity
-
-* Non-repudiation
-
 * Privacy techniques include the following:
 
     * Partial data visibility: transactions are not globally broadcast as in many other systems.
