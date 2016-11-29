@@ -172,3 +172,5 @@ A transaction is not considered valid if any of its transitive dependencies are 
 
 .. note:: Non-validating notaries assume transaction validity and do not request transaction data or their dependencies
           beyond the list of states consumed.
+
+The following tutorial :doc:`tutorial-contract` provides a hand-ons walk-through using these concepts.
