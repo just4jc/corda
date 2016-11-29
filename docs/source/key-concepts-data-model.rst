@@ -118,10 +118,10 @@ Thus, any given actor in a Corda system sees only a subset of the overall data m
 The following diagram illustrates the elements contained within a transaction:
 
 .. image:: resources/transaction.png
-:scale: 80%
+    :scale: 80%
     :align: center
 
-    Beyond inputs and outputs, transactions may also contain **commands**, small data packets that
+Beyond inputs and outputs, transactions may also contain **commands**, small data packets that
 the platform does not interpret itself but which can parameterise execution of the contracts. They can be thought of as
 arguments to the verify function. Each command has a list of **public keys** associated with it. The platform ensures
 that the transaction is signed by every key listed in the commands before the contracts start to execute. Thus, a verify
@@ -161,7 +161,7 @@ controls it. Whilst a single transaction may only consume states if they are all
 a special type of transaction is provided that moves a state (or set of states) from one notary to another.
 
 .. note:: Currently the platform code will not re-assign states to a single notary as needed for you, in case of
-a mismatch. This is a future planned feature.
+          a mismatch. This is a future planned feature.
 
 Transaction Validation
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -171,4 +171,4 @@ downloading any missing transactions into local storage and validating them. The
 A transaction is not considered valid if any of its transitive dependencies are invalid.
 
 .. note:: Non-validating notaries assume transaction validity and do not request transaction data or their dependencies
-beyond the list of states consumed.
+          beyond the list of states consumed.
