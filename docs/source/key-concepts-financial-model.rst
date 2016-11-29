@@ -13,9 +13,7 @@ the *token*. For instance it can be the standard JDK type ``Currency``, or an ``
 a more complex type such as an obligation contract issuance definition (which in turn contains a token definition
 for whatever the obligation is to be settled in).
 
-.. note:: Fungible is used here to mean that instances of an asset is interchangeable for any other identical instance,
-and that they can be split/merged. For example a £5 note can reasonably be exchanged for any other £5 note, and a
-          £10 note can be exchanged for two £5 notes, or vice-versa.
+.. note:: Fungible is used here to mean that instances of an asset is interchangeable for any other identical instance, and that they can be split/merged. For example a £5 note can reasonably be exchanged for any other £5 note, and a £10 note can be exchanged for two £5 notes, or vice-versa.
 
 Here are some examples:
 
@@ -37,8 +35,8 @@ defines methods to do addition and subtraction and these methods verify that the
 are equal (these are operator overloads in Kotlin and can be used as regular methods from Java). There are also
 methods to do multiplication and division by integer amounts.
 
-State
------
+Financial State
+---------------
 In additional to the common state types, a number of interfaces extend ``ContractState`` to model financial state such as:
 
   ``LinearState``
@@ -59,6 +57,7 @@ In additional to the common state types, a number of interfaces extend ``Contrac
 
 The following diagram illustrates the complete Contract State hierarchy:
 
-.. image:: resources/financialContractModel.png
+.. image:: resources/financialContractStateModel.png
 
 Note there are currently two packages, a core library and a finance model specific library.
+Developers may re-use or extend the Finance types directly or write their own by extending the base types from the Core library.

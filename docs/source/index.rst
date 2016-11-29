@@ -35,10 +35,15 @@ Read on to learn:
    :maxdepth: 2
    :caption: Key concepts
 
-   data-model
-   transaction-data-types
-   merkle-trees
-   consensus
+   key-concepts
+   key-concepts-ecosystem
+   key-concepts-data-model
+   key-concepts-core-types
+   key-concepts-financial-model
+   key-concepts-flow-framework
+   key-concepts-security-model
+   key-concepts-consensus
+   key-concepts-vault
 
 .. toctree::
    :maxdepth: 2

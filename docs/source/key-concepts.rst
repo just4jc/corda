@@ -1,17 +1,21 @@
-Key Concepts
-============
+Overview
+========
 
 This section describes the fundamental concepts and features that underpin the Corda platform, to include:
-    * Ecosystem overview
-    * Data model
-    * Core type system
-    * Financial model
-    * Flow framework
-    * Security model
-    * Consensus model
-    * Vault
+
+    * :doc:`key-concepts-ecosystem`
+    * :doc:`key-concepts-data-model`
+    * :doc:`key-concepts-core-types`
+    * :doc:`key-concepts-financial-model`
+    * :doc:`key-concepts-flow-framework`
+    * :doc:`key-concepts-consensus-notaries`
+    * :doc:`key-concepts-vault`
+    * :doc:`key-concepts-security-model`
 
 Detailed thinking and rationale behind these concepts are presented in the following published white papers:
-":doc:`https://docs.corda.net/_static/corda-introductory-whitepaper.pdf`
-":doc:`https://docs.corda.net/_static/corda-technical-whitepaper.pdf`
 
+    * `Corda: An Introduction`_
+    * `Corda: A Distributed Ledger`_ (Technical White Paper)
+
+.. _`Corda: An Introduction`: _static/corda-introductory-whitepaper.pdf
+.. _`Corda: A Distributed Ledger`: _static/corda-technical-whitepaper.pdf

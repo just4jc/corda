@@ -8,39 +8,33 @@ design elements: please refer to the White Papers for background information.
 Overview
 --------
 Corda uses the so-called "UTXO set" model (unspent transaction output). In this model, the database
-does not track accounts or balances. Instead all database entries are immutable. An entry is either spent or not spent
-but it cannot be changed.
-
-The Corda model focused on states of agreements is in contrast to systems where the data over which participants must
-reach consensus is the state of an entire ledger or the state of an entire virtual machine.
-
-Corda provides three main tools to achieve global distributed consensus:
-• Smart contract logic to ensure state transitions are valid according to the pre-agreed rules.
-• Uniqueness and timestamping services to order transactions temporally and eliminate conflicts.
-• An orchestration framework which simplifies the process of writing complex multi-step protocols between multiple different parties.
-
-Why we chose the UTXO model
-There are two competing computational models used in distributed ledger technology: the virtual computer model (as used
-by Ethereum) and the UTXO model (as popularised by Bitcoin). In this model the database is a set of immutable rows keyed
+does not track accounts or balances. An entry is either spent or not spent but it cannot be changed. In this model the database is a set of immutable rows keyed
 by (hash:output index). Transactions define outputs that append new rows and inputs which consume existing rows.
 
-Corda follows the UTXO (unspent transaction output set) model:
+Base characteristics of this model are:
+
 • Immutable states are consumed and created by transactions
 • Transactions have multiple inputs and outputs
 • A contract is pure function; contracts do not have storage or the ability to interact with anything. Given the same transaction, a contract’s “verify” function always yields exactly the same result.
 
-and extends this with additional features:
+Corda further enhances this with additional features:
+
 • Corda states can include arbitrary typed data.
 • Transactions invoke not only input contracts but also the contracts of the outputs.
 • Corda uses the term “contract” to refer to a bundle of business logic that may handle various different tasks, beyond transaction verification.
 • Corda contracts are Turing-complete and can be written in any ordinary programming language that targets the JVM.
 • Corda allows arbitrarily-precise time-bounds to be specified in transactions (which must be attested to by a trusted timestamper)
 • Corda's primary consensus implementations use block-free conflict resolution algorithms.
-• Corda does not order transactions using a block chain and by implication does not use miners or proof-of-work. Instead
-each state points to a notary, which is a service that guarantees it will sign a transaction only if all the input states are un-consumed.
+• Corda does not order transactions using a block chain and by implication does not use miners or proof-of-work. Instead each state points to a notary, which is a service that guarantees it will sign a transaction only if all the input states are un-consumed.
 
 In our model although the ledger is shared, it is not always the case that transactions and ledger entries are globally visible.
 In cases where a set of transactions stays within a small subgroup of users it should be possible to keep the relevant data purely within that group.
+
+Corda provides three main tools to achieve global distributed consensus:
+
+• Smart contract logic to ensure state transitions are valid according to the pre-agreed rules.
+• Uniqueness and timestamping services to order transactions temporally and eliminate conflicts.
+• An orchestration framework which simplifies the process of writing complex multi-step protocols between multiple different parties.
 
 To ensure consistency in a global, shared system where not all data may be visible to all participants, we rely
 heavily on secure hashes like SHA-256 to identify things. The ledger is defined as a set of immutable **states**, which
@@ -95,6 +89,7 @@ Transaction are used to update the ledger by consuming existing state objects an
 they transition state objects through a lifecycle.
 
 A transaction update is accepted according to the following two aspects of consensus:
+
    #. Transaction validity: parties can reach certainty that a proposed update transaction defining output states is valid
       by checking that the associated contract code runs successfully and has all the required signatures; and that any
       transactions to which this transaction refers are also valid.

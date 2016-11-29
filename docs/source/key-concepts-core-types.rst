@@ -1,11 +1,11 @@
 Core Types
 ==========
 
-Corda provides a large standard library of data types used to represent the data model described in :doc:`data-model`.
+Corda provides a large standard library of data types used to represent the :doc:`data-model` previously described.
 In addition, there are a series of helper libraries which provide date manipulation, maths and cryptography functions.
 
-State
------
+State and References
+--------------------
 
 A Corda contract is composed of three parts; the executable code, the legal prose, and the state objects that represent
 the details of a specific deal or asset. In relational database terms a state is like a row in a database.
@@ -89,8 +89,7 @@ Identities of parties involved in signing a transaction can be represented simpl
 information (such as name) using the ``Party`` class. An ``AuthenticatedObject`` represents an object (like a command)
 that has been signed by a set of parties.
 
-.. note:: These types are provisional and will change significantly in future as the identity framework becomes more
-fleshed out.
+.. note:: These types are provisional and will change significantly in future as the identity framework becomes more fleshed out.
 
 Multi-signature support
 -----------------------
@@ -108,13 +107,13 @@ node specifies a *threshold* of how many child signatures it requires.
 An illustration of an *"either Alice and Bob, or Charlie"* composite key:
 
 .. image:: resources/composite-key.png
-:width: 300px
+      :width: 300px
 
 To allow further flexibility, each child node can have an associated custom *weight* (the default is 1). The *threshold*
 then specifies the minimum total weight of all children required. Our previous example can also be expressed as:
 
 .. image:: resources/composite-key-2.png
-:width: 300px
+      :width: 300px
 
 Verification
 ^^^^^^^^^^^^
