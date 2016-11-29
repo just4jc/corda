@@ -26,8 +26,9 @@ The following diagram illustrates a sample Multi-party Business Flow:
 Note the following:
 
 * there are 3 participants in this workflow including the notary
-* the Buyer and Seller flows are custom written by developers and deployed within a CorDapp
-* the custom written flows invoke both financial library flows (``TwoPartyTradeFlow``) and core library flows (``ResolveTransactionsFlow``, ``NotaryFlow``)
+* the Buyer and Seller flows (depicted in green) are custom written by developers and deployed within a CorDapp
+* the custom written flows invoke both financial library flows such as ``TwoPartyTradeFlow`` (depicted in orange) and core
+  library flows such as ``ResolveTransactionsFlow`` and ``NotaryFlow`` (depicted in yellow)
 * each side of the flow illustrates the stage of execution with a progress tracker notification
 * activities within a flow directly or indirectly interact with its node's ledger (eg. to record a signed, notarised transaction) and vault (eg. to perform a spend of some fungible asset)
 * flows interact across parties using send, receive and sendReceive messaging semantics (by implementing the ``FlowLogic`` interface)
