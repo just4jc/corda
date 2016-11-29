@@ -10,9 +10,8 @@ and, where appropriate, shadow ("off-ledger") form:
 
 The vault keeps track of both unconsumed and consumed state:
 
- * unconsumed (or unspent state) represents fungible state available for spending and/or generalized state available for transferable to another party.
- * consumed (or spent state) represents ledger immutable state for the purpose of transaction reporting, audit and archival, including the ability to perform joins between entirely app-private data (like customer notes)
-and consumed ledger data.
+ * unconsumed (or unspent state) represents fungible state available for spending and/or generalized state available for transfer to another party.
+ * consumed (or spent state) represents ledger immutable state for the purpose of transaction reporting, audit and archival, including the ability to perform joins with app-private data (like customer notes)
 
 There is also a facility for attaching descriptive textual notes against any transaction stored in the vault.
 
@@ -30,8 +29,8 @@ Note the following:
 
 * the Core Vault "On Ledger" store tracks unconsumed state and is updated internally by the node upon recording of a transaction on the ledger (following succesful smart contract verification and signature by all participants)
 * the Core Vault "Off Ledger" store refers to additional data added by the node owner subsequent to transaction recording
-* the Core Vault performs cash spending and transaction processing
-* Vault extensions represent addition custom plugin code a developer may write to query specific custom contract state attributes.
+* the Core Vault performs transaction processing
+* Vault extensions represent additional custom plugin code a developer may write to query specific custom contract state attributes.
 * Customer "Off Ledger (private store) represents internal organisational data that may be joined with the vault data to perform additional reporting or processing
 * a vault API is exposed to developers using standard Corda RPC and CorDapp plugin mechanisms
 * additionally the vault database schemas are directly accessible via JDBC for customer joins and queries

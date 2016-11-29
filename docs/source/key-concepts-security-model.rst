@@ -27,7 +27,7 @@ Security is prevalent at the following levels:
   Network permissioning including node to node authentication is performed using TLS and certificates.
   See :doc:`permissioning` for further detail.
 
-.. warning:: API level authentication (RPC, Web) is currently simple username/password and subject to design review.
+.. warning:: API level authentication (RPC, Web) is currently simple username/password for demonstration purposes and will be revised.
 
 * Authorisation and entitlements
 

@@ -14,16 +14,18 @@ The following diagram illustrates this model:
    :scale: 50 %
    :align: center
 
-Corda has “pluggable” uniqueness services. This is to improve privacy, scalability, legal-system compatibility and
-algorithmic agility. A single service may be composed of many mutually untrusting nodes coordinating via a byzantine
-fault tolerant algorithm, or could be very simple, like a single machine. In some cases, like when evolving a state
-requires the signatures of all relevant parties, there may be no need for a uniqueness service at all.
 
-It is important to note that these uniqueness services are required only to attest as to whether the states consumed by
-a given transaction have previously been consumed; they are not required to attest as to the validity of the transaction
-itself, which is a matter for the parties to the transaction. This means that the uniqueness services are not required to
-(and, in the general case, will not) see the full contents of any transactions, significantly improving privacy and scalability
-of the system compared with alternative distributed ledger and blockchain designs.
+Corda has the "pluggable" notary services which provide transaction ordering and timestamping services. This is to improve
+privacy, scalability, legal-system compatibility and algorithmic agility. A single service may be composed of many mutually
+untrusting nodes coordinating via a byzantine fault tolerant algorithm, or could be very simple, like a single machine.
+In some cases, like when evolving a state requires the signatures of all relevant parties, there may be no need for a uniqueness service at all.
+
+Notaries are expected to be composed of multiple mutually distrusting parties who use a standard consensus algorithm.
+Notaries are identified by and sign with composite public keys. Notaries accept transactions submitted to them for processing
+and either return a signature over the transaction, or a rejection error that states that a double spend has occurred.
+The presence of a notary signature from the state’s chosen notary indicates transaction finality. An app developer triggers
+notarisation by invoking the **Finality flow** on the transaction once all other necessary signatures have been gathered.
+Once the finality flow returns successfully, the transaction can be considered committed to the database.
 
 Consensus is described in detail here :doc:`consensus`
 

@@ -9,6 +9,9 @@ State and References
 
 A Corda contract is composed of three parts; the executable code, the legal prose, and the state objects that represent
 the details of a specific deal or asset. In relational database terms a state is like a row in a database.
+Legal prose refers to the legal contract template and parameters, and supporting static data (that never changes for the lifecycle of a contract).
+In contrast, state objects contain mutable data which we would expect to evolve over the lifetime of a contract.
+
 A reference to a state in the ledger (whether it has been consumed or not) is represented with a ``StateRef`` object.
 If the state ref has been looked up from storage, you will have a ``StateAndRef`` which is simply a ``StateRef`` plus the data.
 
@@ -47,11 +50,13 @@ resolving the attachment references to the attachments. Commands with valid sign
 ``AuthenticatedObject`` type.
 
 .. note:: A ``LedgerTransaction`` has not necessarily had its contracts be run, and thus could be contract-invalid
-(but not signature-invalid). You can use the ``verify`` method as shown below to run the contracts.
+(but not signature-invalid). You can use the ``verify`` method as shown below to validate the contracts.
 
 When constructing a new transaction from scratch, you use ``TransactionBuilder``, which is a mutable transaction that
-can be signed once modification of the internals is complete. It is typical for contract classes to expose helper
-methods that can contribute to a ``TransactionBuilder``.
+can be signed once its construction is complete. This builder class should be used to create the initial transaction representation
+(before signature, before verification). It is intended to be passed around contracts that may edit it by adding new states/commands.
+Then once the states and commands are right, this class can be used as a holding bucket to gather signatures from multiple parties.
+It is typical for contract classes to expose helper methods that can contribute to a ``TransactionBuilder``.
 
 Here's an example of building a transaction that creates an issuance of bananas (note that bananas are not a real
 contract type in the library):

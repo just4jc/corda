@@ -35,8 +35,8 @@ defines methods to do addition and subtraction and these methods verify that the
 are equal (these are operator overloads in Kotlin and can be used as regular methods from Java). There are also
 methods to do multiplication and division by integer amounts.
 
-Financial State
----------------
+Financial States
+----------------
 In additional to the common state types, a number of interfaces extend ``ContractState`` to model financial state such as:
 
   ``LinearState``
