@@ -20,6 +20,8 @@ Security is prevalent at the following levels:
 * Composite keys
 
 * Authentication
+  Network permissioning including node to node authentication is performed using TLS and certificates.
+  See :doc:`permissioning` for further detail.
 
 .. warning:: API level authentication (RPC, Web) is currently simple username/password and subject to design review.
 
@@ -38,6 +40,7 @@ Security is prevalent at the following levels:
     ** Partial data visibility: transactions are not globally broadcast as in many other systems.
     ** Transaction tear-offs: Transactions are structured as Merkle trees, and may have individual subcomponents be revealed
        to parties who already know the Merkle root hash. Additionally, they may sign the transaction without being able to see all of it.
+       See :doc:`merkle-trees` for further detail.
 
 .. note:: future privacy techniques will include key randomisation, graph pruning, deterministic JVM sandboxing and support fo secure signing devices.
     See the Technical White Paper for detailed descriptions of these techniques and features.
