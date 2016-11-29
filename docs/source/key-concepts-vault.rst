@@ -10,7 +10,7 @@ and, where appropriate, shadow ("off-ledger") form:
 
 The vault keeps track of both unconsumed and consumed state:
 
- * unconsumed (or unspent state) represents fungible state available for spending and/or generalized state available for transfer to another party.
+ * unconsumed (or unspent state) represents fungible state available for spending and linear state available for transfer to another party.
  * consumed (or spent state) represents ledger immutable state for the purpose of transaction reporting, audit and archival, including the ability to perform joins with app-private data (like customer notes)
 
 There is also a facility for attaching descriptive textual notes against any transaction stored in the vault.
