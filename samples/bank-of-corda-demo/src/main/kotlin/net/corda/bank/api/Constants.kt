@@ -7,7 +7,7 @@ import net.corda.testing.MEGA_CORP
 import java.security.KeyPair
 import java.security.PublicKey
 
-val defaultRef = OpaqueBytes(ByteArray(1, { 1 }))
+val defaultRef = OpaqueBytes.of(1)
 
 /*
  * Bank Of Corda (BOC_ISSUER_PARTY)
