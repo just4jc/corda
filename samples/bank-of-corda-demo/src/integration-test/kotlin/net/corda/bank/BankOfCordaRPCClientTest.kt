@@ -1,5 +1,6 @@
 package net.corda.bank
 
+import net.corda.bank.api.BOC_ISSUER_PARTY_REF
 import net.corda.bank.flow.IssuerFlow.IssuanceRequester
 import net.corda.bank.flow.IssuerFlowResult
 import net.corda.client.CordaRPCClient
@@ -29,7 +30,7 @@ class BankOfCordaRPCClientTest {
             client.start("user1","test")
             val proxy = client.proxy()
 
-            val result = proxy.startFlow(::IssuanceRequester, 1000.DOLLARS, bigCorporationName, bankOfCordaName).returnValue.toBlocking().first()
+            val result = proxy.startFlow(::IssuanceRequester, 1000.DOLLARS, bigCorporationName, BOC_ISSUER_PARTY_REF, bankOfCordaName).returnValue.toBlocking().first()
             assertTrue { result is IssuerFlowResult.Success }
         }, isDebug = true)
     }

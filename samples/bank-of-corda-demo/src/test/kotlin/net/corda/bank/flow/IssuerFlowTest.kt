@@ -6,9 +6,10 @@ import net.corda.bank.api.BOC_KEY
 import net.corda.bank.flow.IssuerFlow.IssuanceRequester
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.DOLLARS
-import net.corda.core.crypto.Party
+import net.corda.core.contracts.PartyAndReference
 import net.corda.core.flows.FlowStateMachine
 import net.corda.core.map
+import net.corda.core.serialization.OpaqueBytes
 import net.corda.core.utilities.DUMMY_NOTARY
 import net.corda.core.utilities.DUMMY_NOTARY_KEY
 import net.corda.testing.MEGA_CORP
@@ -38,7 +39,9 @@ class IssuerFlowTest {
             bankClientNode.disableDBCloseOnStop()
             bankOfCordaNode.disableDBCloseOnStop()
 
-            val (issuer, issuerResult) = runIssuerAndIssueRequester(1000000.DOLLARS, MEGA_CORP)
+            // using default IssueTo Party Reference
+            val issueToPartyAndRef = MEGA_CORP.ref(OpaqueBytes.of(123))
+            val (issuer, issuerResult) = runIssuerAndIssueRequester(1000000.DOLLARS, issueToPartyAndRef)
             assertEquals(issuerResult.get(), issuer.get().resultFuture.get())
 
             bankOfCordaNode.stop()
@@ -49,12 +52,12 @@ class IssuerFlowTest {
         }
     }
 
-    private fun runIssuerAndIssueRequester(amount: Amount<Currency>, issueTo: Party) : RunResult {
+    private fun runIssuerAndIssueRequester(amount: Amount<Currency>, issueToPartyAndRef: PartyAndReference) : RunResult {
         val issuerFuture = bankOfCordaNode.initiateSingleShotFlow(IssuerFlow.IssuanceRequester::class) {
-            otherParty -> IssuerFlow.Issuer(issueTo)
+            otherParty -> IssuerFlow.Issuer(issueToPartyAndRef.party)
         }.map { it.fsm }
 
-        val issueRequest = IssuanceRequester(amount, issueTo.name, BOC_ISSUER_PARTY.name)
+        val issueRequest = IssuanceRequester(amount, issueToPartyAndRef.party.name, issueToPartyAndRef.reference, BOC_ISSUER_PARTY.name)
         val issueRequestResultFuture = bankClientNode.smm.add(issueRequest).resultFuture
 
         return RunResult(issuerFuture, issueRequestResultFuture)

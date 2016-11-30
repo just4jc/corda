@@ -1,7 +1,6 @@
 package net.corda.bank.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.bank.api.BOC_ISSUER_PARTY_REF
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.FungibleAsset
 import net.corda.core.contracts.Issued
@@ -24,12 +23,12 @@ import java.util.*
  *
  */
 object IssuerFlow {
-    data class IssuanceRequestState(val amount: Amount<Currency>, val issueToParty: Party, val issuerPartyRef: OpaqueBytes?)
+    data class IssuanceRequestState(val amount: Amount<Currency>, val issueToParty: Party, val issuerPartyRef: OpaqueBytes)
 
     /*
      * IssuanceRequester refers to a Node acting as issuance requester of some FungibleAsset
      */
-    class IssuanceRequester(val amount: Amount<Currency>, val issueToPartyName: String,
+    class IssuanceRequester(val amount: Amount<Currency>, val issueToPartyName: String, val issueToPartyRef: OpaqueBytes,
                             val otherParty: String): FlowLogic<IssuerFlowResult>() {
         @Suspendable
         override fun call(): IssuerFlowResult {
@@ -39,7 +38,7 @@ object IssuerFlow {
                 return IssuerFlowResult.Failed("Unable to locate ${otherParty} in Network Map Service")
             }
             else {
-                val issueRequest = IssuanceRequestState(amount, issueToParty, issuerPartyRef = BOC_ISSUER_PARTY_REF)
+                val issueRequest = IssuanceRequestState(amount, issueToParty, issueToPartyRef)
                 return sendAndReceive<IssuerFlowResult>(bankOfCordaParty, issueRequest).unwrap { it }
             }
         }
@@ -64,7 +63,7 @@ object IssuerFlow {
             val issueRequest = receive<IssuanceRequestState>(otherParty).unwrap { it }
             // TODO: parse request to determine Asset to issue
             try {
-                val result = issueCashTo(issueRequest.amount, issueRequest.issueToParty, issueRequest.issuerPartyRef!!)
+                val result = issueCashTo(issueRequest.amount, issueRequest.issueToParty, issueRequest.issuerPartyRef)
                 val response = if (result is CashFlowResult.Success)
                     IssuerFlowResult.Success(result.transaction!!.tx.id, "Amount ${issueRequest.amount} issued to ${issueRequest.issueToParty}")
                 else
@@ -80,7 +79,7 @@ object IssuerFlow {
 
         @Suspendable
         private fun issueCashTo(amount: Amount<Currency>,
-                                issueTo: Party, issuerPartyRef: OpaqueBytes = BOC_ISSUER_PARTY_REF): CashFlowResult {
+                                issueTo: Party, issuerPartyRef: OpaqueBytes): CashFlowResult {
             val notaryNode: NodeInfo = serviceHub.networkMapCache.notaryNodes[0]
             // invoke Cash subflow to issue Asset
             progressTracker.currentStep = ISSUING

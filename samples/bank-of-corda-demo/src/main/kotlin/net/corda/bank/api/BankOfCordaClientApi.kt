@@ -5,7 +5,9 @@ import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
 import net.corda.bank.flow.IssuerFlow.IssuanceRequester
 import net.corda.bank.flow.IssuerFlowResult
 import net.corda.client.CordaRPCClient
-import net.corda.core.contracts.DOLLARS
+import net.corda.core.contracts.Amount
+import net.corda.core.contracts.currency
+import net.corda.core.serialization.OpaqueBytes
 import net.corda.node.services.config.configureTestSSL
 import net.corda.node.services.messaging.startFlow
 import net.corda.testing.http.HttpApi
@@ -32,7 +34,9 @@ class BankOfCordaClientApi(val hostAndPort: HostAndPort) {
         client.start("user1","test")
         val proxy = client.proxy()
 
-        return proxy.startFlow(::IssuanceRequester, params.amount.DOLLARS, params.issueToPartyName, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
+        val amount = Amount(params.amount, currency(params.currency))
+        val issuerToPartyRef = OpaqueBytes.of(params.issueToPartyRefAsString.toByte())
+        return proxy.startFlow(::IssuanceRequester, amount, params.issueToPartyName, issuerToPartyRef, BOC_ISSUER_PARTY.name).returnValue.toBlocking().first()
     }
 
     private companion object {

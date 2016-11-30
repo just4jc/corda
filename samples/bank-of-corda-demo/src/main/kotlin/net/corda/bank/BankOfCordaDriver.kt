@@ -2,7 +2,6 @@ package net.corda.bank
 
 import com.google.common.net.HostAndPort
 import joptsimple.OptionParser
-import net.corda.bank.api.BOC_ISSUER_PARTY_REF
 import net.corda.bank.api.BankOfCordaClientApi
 import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
 import net.corda.bank.flow.IssuerFlow

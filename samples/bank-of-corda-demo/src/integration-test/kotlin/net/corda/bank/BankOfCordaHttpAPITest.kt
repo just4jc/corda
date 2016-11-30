@@ -15,7 +15,7 @@ class BankOfCordaHttpAPITest {
             val nodeBankOfCordaApiAddr = nodeBankOfCorda.config.getHostAndPort("webAddress")
             val nodeBigCorporation = startNode("BigCorporation").get()
             val bigCorporationName = nodeBigCorporation.nodeInfo.legalIdentity.name
-            assert(BankOfCordaClientApi(nodeBankOfCordaApiAddr).requestWebIssue(IssueRequestParams(1000, bigCorporationName)))
+            assert(BankOfCordaClientApi(nodeBankOfCordaApiAddr).requestWebIssue(IssueRequestParams(1000, "USD", bigCorporationName, "1")))
         }, isDebug = true)
     }
 }
