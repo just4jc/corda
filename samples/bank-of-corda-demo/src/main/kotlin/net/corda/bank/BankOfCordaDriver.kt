@@ -2,6 +2,7 @@ package net.corda.bank
 
 import com.google.common.net.HostAndPort
 import joptsimple.OptionParser
+import net.corda.bank.api.BOC_ISSUER_PARTY_REF
 import net.corda.bank.api.BankOfCordaClientApi
 import net.corda.bank.api.BankOfCordaWebApi.IssueRequestParams
 import net.corda.bank.flow.IssuerFlow
@@ -35,8 +36,9 @@ private class BankOfCordaDriver {
 
     fun main(args: Array<String>) {
         val parser = OptionParser()
-
-        val roleArg = parser.accepts("role").withRequiredArg().ofType(Role::class.java).required()
+        val roleArg = parser.accepts("role").withRequiredArg().ofType(Role::class.java).describedAs("[ISSUER|ISSUE_CASH_RPC|ISSUE_CASH_WEB]")
+        val quantity = parser.accepts("quantity").withOptionalArg().ofType(Long::class.java)
+        val currency = parser.accepts("currency").withOptionalArg().ofType(String::class.java).describedAs("[GBP|USD|CHF|EUR]")
         val options = try {
             parser.parse(*args)
         } catch (e: Exception) {
@@ -49,33 +51,45 @@ private class BankOfCordaDriver {
         // The ISSUER will launch a Bank of Corda node
         // The ISSUE_CASH will request some Cash from the ISSUER on behalf of Big Corporation node
         val role = options.valueOf(roleArg)!!
-        when (role) {
-            Role.ISSUER ->  {
-                driver(dsl = {
-                    val user = User("user1", "test", permissions = setOf(startFlowPermission<IssuerFlow.IssuanceRequester>()))
-                    startNode("Notary", setOf(ServiceInfo(SimpleNotaryService.type)))
-                    startNode("BankOfCorda", rpcUsers = listOf(user))
-                    startNode("BigCorporation")
-                    waitForAllNodesToFinish()
-                }, isDebug = true)
+        if (role == Role.ISSUER) {
+            driver(dsl = {
+                val user = User("user1", "test", permissions = setOf(startFlowPermission<IssuerFlow.IssuanceRequester>()))
+                startNode("Notary", setOf(ServiceInfo(SimpleNotaryService.type)))
+                startNode("BankOfCorda", rpcUsers = listOf(user))
+                startNode("BigCorporation")
+                waitForAllNodesToFinish()
+            }, isDebug = true)
+        }
+        else {
+            try {
+                val requestParams = IssueRequestParams(options.valueOf(quantity), options.valueOf(currency), "BigCorporation", "1")
+                when (role) {
+                    Role.ISSUE_CASH_RPC -> {
+                        logger.info("Requesting Cash via RPC ...")
+                        val result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10004")).requestRPCIssue(requestParams)
+                        if (result is IssuerFlowResult.Success)
+                            logger.info("Success!! You transaction receipt is ${result.txnId}")
+                    }
+                    Role.ISSUE_CASH_WEB -> {
+                        logger.info("Requesting Cash via Web ...")
+                        val result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10005")).requestWebIssue(requestParams)
+                        if (result)
+                            logger.info("Successfully processed Cash Issue request")
+                    }
+                    Role.ISSUER -> {}
+                }
             }
-            Role.ISSUE_CASH_RPC -> {
-                logger.info("Requesting Cash via RPC ...")
-                val result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10004")).requestRPCIssue(IssueRequestParams(1000, "BigCorporation"))
-                if (result is IssuerFlowResult.Success)
-                    logger.info("Success!! You transaction receipt is ${result.txnId}")
+            catch (e: Exception) {
+                printHelp(parser)
             }
-            Role.ISSUE_CASH_WEB -> {
-                logger.info("Requesting Cash via Web ...")
-                val result = BankOfCordaClientApi(HostAndPort.fromString("localhost:10005")).requestWebIssue(IssueRequestParams(1000, "BigCorporation"))
-                if (result)
-                    logger.info("Successfully processed Cash Issue request")            }
         }
     }
 
     fun printHelp(parser: OptionParser) {
         println("""
-        Usage: bank-of-corda --role [ISSUE_REQUESTER|ISSUER]
+        Usage: bank-of-corda --role ISSUER
+               bank-of-corda --role (ISSUE_CASH_RPC|ISSUE_CASH_WEB) --quantity <quantity> --currency <currency>
+
         Please refer to the documentation in docs/build/index.html for more info.
 
         """.trimIndent())
