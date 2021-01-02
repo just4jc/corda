@@ -27,7 +27,7 @@
     "highcharts": "^4.2.6",
     "jquery": "^3.1.0",
     "moment": "^2.14.1",
-    "ng2-bootstrap": "1.0.x",
+    "ng2-bootstrap": "1.6.3",
     "ng2-popover": "0.0.6",
     "ng2-select": "1.0.x",
     "ng2-table": "1.0.x",
